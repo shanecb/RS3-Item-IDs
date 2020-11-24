@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Any
+from datetime import datetime
 
 from models import Model
 
@@ -11,3 +12,4 @@ class Category(Model):
     id: int
     name: str
     item_count: int
+    last_update: datetime

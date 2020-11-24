@@ -1,5 +1,8 @@
-#: Dictionary category id's and their associated category names.
-categories = {
+from typing import Dict
+
+
+#: Dict of category id's and their associated category names.
+item_categories: Dict = {
     0: 'Miscellaneous',
     1: 'Ammo',
     2: 'Arrows',

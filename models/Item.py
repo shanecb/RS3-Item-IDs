@@ -8,6 +8,7 @@ class Item(Model):
     """Model of a RuneScape item."""
 
     id: int = field(default=-1)
+    category_id: int = field(default=None)
     name: str = field(default='')
     description: str = field(default='')
     type: str = field(default='')
@@ -20,20 +21,5 @@ class Item(Model):
             self.members_only = (False, True)[str(self.members_only).lower() == 'true']
         elif type(self.members_only) is int:
             self.members_only = bool(self.members_only)
-
-    @classmethod
-    def db_fields_to_keys(cls) -> Dict[str, str]:
-        """Overrides the default Model.db_keys() implementation to change the members_only field name."""
-        keys = super().db_fields_to_keys()
-        keys['members_only'] = 'members'
-        return keys
-
-    def db_column_values(self) -> Tuple[int, str, str, str, int]:
-        """
-        Returns the fields of this Item object as a tuple, converting the members_only field to an int.
-        @return: A Tuple of this Item object's fields.
-        """
-        return self.id, self.name, self.description, self.type, int(self.members_only)
-
 
 

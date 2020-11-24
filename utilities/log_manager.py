@@ -39,13 +39,15 @@ root_logger: Logger = logging.getLogger('')
 #
 #
 def get_logger(logger_name):
-    logger = logging.getLogger(logger_name)
-    logger.propagate = False
+    # logger = logging.getLogger(logger_name)
+    # logger.propagate = False
 
     # console_handler = logging.StreamHandler(sys.stdout)
     # console_handler.setLevel(CONSOLE_LOG_LEVEL)
     # console_handler.setFormatter(Formatter('%(name)-12s: %(levelname)-8s %(message)s'))
     # logger.addHandler(console_handler)
+
+    logger = root_logger.getChild(logger_name)
 
     return logger
 
