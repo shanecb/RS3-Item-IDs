@@ -7,27 +7,27 @@ log = log_manager.get_logger('RS3ItemIds.main')
 
 
 def save_items_block(items: List[Item]):
-    items = [i.db_model.to_dict() for i in items]
+    items = [i.to_dict() for i in items]
     for i in items:
         i['category_id'] = i.pop('category')['id']
         i['item_page_id'] = i.pop('item_page')['id']
     with db.atomic() as txn:
-        Item.db.replace_many(items).execute()
+        Item.replace_many(items).execute()
         txn.commit()
 
 
 def save_item_page_block(item_page: ItemPage, item_count: int) -> int:
     with db.atomic() as txn:
-        instance = ItemPage.fetch_by(
-            item_page.category_id,
-            item_page.alpha,
-            item_page.page_num
+        instance = ItemPage.get_or_none(
+            ItemPage.category_id == item_page.category_id,
+            ItemPage.alpha == item_page.alpha,
+            ItemPage.page_num == item_page.page_num
         )
         if instance is None:
-            return item_page.create_instance()
+            return item_page.save()
         else:
             fields = instance.to_dict()
-            category = Category.db.get_or_none(Category.db.id == item_page.category_id)
+            category = Category.get_or_none(Category.id == item_page.category_id)
             if not category:
                 log.error(f'Failed to fetch Category associated with ItemPage. (category_id={item_page.category_id}, '
                           f'alpha={item_page.alpha}, page_num={item_page.page_num})')
@@ -45,20 +45,20 @@ def save_item_page_block(item_page: ItemPage, item_count: int) -> int:
             else:
                 log.info(f'Replacing entry for ItemPage (category_id={item_page.category_id}, '
                          f'alpha={item_page.alpha}, page_num={item_page.page_num})')
-                ItemPage.db.replace(fields).execute()
+                ItemPage.replace(fields).execute()
         txn.commit()
     return instance.id
 
 
 def update_category_block(category: Category):
     with db.atomic() as txn:
-        category.db_model.save()
+        category.save()
         txn.commit()
 
 
 def main():
-    for db_category in list(Category.db.select()):
-        category = Category(db_category.id, db_category.name, db_category.item_count)
+    for category in list(Category.select()):
+        print(f'\n\n{category.id}, {category.name}\n\n')
         get_items_in_category(category, save_items_block, save_item_page_block, update_category_block)
 
 

@@ -112,15 +112,15 @@ def get_items_in_category(
 
     @return: List of Tuples with the category, letter, and page number of failed requests.
     """
-    category_id = category.id
-    alphas = get_alpha_counts(category_id)
+    alphas = get_alpha_counts(category.id)
     if '#' in alphas: alphas['%23'] = alphas.pop('#')
     expected_total_count = sum(alphas.values())
 
+    # dict of letters to the number of page requests needed to get all items starting with that letter
     request_alphas = {letter: math.ceil(count / ITEMS_PER_PAGE) for letter, count in alphas.items()}
 
     log.info(f'Alphas to page counts: {request_alphas}.')
-    log.info(f'Attempting to get {expected_total_count} items from category_id: {category_id}.')
+    log.info(f'Attempting to get {expected_total_count} items from category_id: {category.id}.')
 
     total_count = 0
     for letter, count in request_alphas.items():
@@ -130,11 +130,11 @@ def get_items_in_category(
         items: List[Item] = []
         for page_num in range(1, count + 1):
             expected_count = (last_page_count, ITEMS_PER_PAGE)[page_num < count]
-            params = ItemRequestParams(category_id, letter, page_num)
+            params = ItemRequestParams(category.id, letter, page_num)
             page: List[Item] = get_items_with_letter_in_category_on_page(params)
 
             item_page = ItemPage(
-                category_id=category_id,
+                category_id=category.id,
                 alpha=letter,
                 page_num=page_num,
                 last_updated=datetime.utcnow()
@@ -143,7 +143,7 @@ def get_items_in_category(
             actual_count = len(page)
             if actual_count != expected_count:
                 log.warning(f'Incorrect number of items found on page: {page_num}. Expected: {expected_count}, but got:'
-                            f' {actual_count} (category_id={category_id}, alpha={letter}, page={page_num})')
+                            f' {actual_count} (category_id={category.id}, alpha={letter}, page={page_num})')
                 item_page.succeeded = False
             else:
                 item_page.succeeded = True
@@ -154,7 +154,7 @@ def get_items_in_category(
             page = [
                 Item(
                     id=i.id,
-                    category_id=category_id,
+                    category_id=category.id,
                     item_page_id=db_item_page_id,
                     name=i.name,
                     description=i.description,
@@ -169,7 +169,7 @@ def get_items_in_category(
         total_count += len(items)
 
     if total_count != expected_total_count:
-        log.warning(f'Count of items retrieved from category_id: {category_id} not equal to expected total: '
+        log.warning(f'Count of items retrieved from category_id: {category.id} not equal to expected total: '
                     f'{expected_total_count}. Only got {total_count} items.')
 
     category.item_count = total_count

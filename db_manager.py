@@ -1,11 +1,11 @@
-from models import db, DBCategory, DBItemPage, DBItem
+from models import *
 from rs3_api_constants import item_categories
 from utilities import log_manager
 
 log = log_manager.get_logger('RS3ItemIds.api_manager')
 """Logger object specific to the APIManager."""
 
-MODELS = [DBCategory, DBItemPage, DBItem]
+MODELS = [Category, ItemPage, Item]
 
 __all__ = [
     'create_tables',
@@ -22,8 +22,8 @@ def create_tables():
 
 def populate_item_categories():
     """Inserts categories generated from the categories dictionary in rs3_api_constants.py"""
-    categories = [DBCategory(id=category_id, name=name) for category_id, name in item_categories.items()]
-    DBCategory.bulk_create(categories)
+    categories = [Category(id=category_id, name=name) for category_id, name in item_categories.items()]
+    Category.bulk_create(categories)
 
 
 if __name__ == "__main__":
