@@ -12,8 +12,9 @@ __all__ = [
     'ItemRequestParams'
 ]
 
-MAX_RETRIES = 5
-RETRY_WAIT_TIME = 5.1
+MAX_RETRIES = 8
+RETRY_WAIT_TIME = 11.1
+LONG_WAIT_TIME = 300
 ITEMS_PER_PAGE = 12
 
 log = log_manager.get_logger('RS3ItemIds.api_manager')
@@ -27,7 +28,10 @@ def _get_with_retry(url: str, params: Dict = None, try_count: int = 0) -> Any:
 
     def recurse() -> Any:
         time.sleep(RETRY_WAIT_TIME)
-        log.info(f'Retrying GET request to url: {url} (attempt {try_count + 1}).')
+        if try_count >= 5:
+            log.warning('Retries have not succeeded... waiting long time now.')
+            time.sleep(LONG_WAIT_TIME)
+        log.info(f'Retrying GET request to url: {url}, with params: {params} (attempt {try_count + 1}).')
         return _get_with_retry(url, params, try_count + 1)
 
     if try_count >= MAX_RETRIES:
