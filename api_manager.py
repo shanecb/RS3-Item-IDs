@@ -92,8 +92,8 @@ def get_items_with_letter_in_category_on_page(params: ItemRequestParams) -> List
 
 def get_items_in_category(
         category: Category,
-        save_alpha_block: Callable[[List[Item]], None],
-        save_item_page_block: Callable[[ItemPage], int],
+        save_items_block: Callable[[List[Item]], None],
+        save_item_page_block: Callable[[ItemPage, int], int],
         update_category_block: Callable[[Category], None]
 ) -> List[ItemRequestParams]:
     """
@@ -102,7 +102,7 @@ def get_items_in_category(
 
     @param category: The category to get the items for. @param save_alpha_block: A completion block that will be
     called with all items with a given first letter after they've been successfully fetched.
-    @param save_alpha_block: The function to call to save each list of items which start with a given letter.
+    @param save_items_block: The function to call to save each list of items which start with a given letter.
     @param save_item_page_block: The function to call to save each item page.
     @param update_category_block: The function to call to update the category.
 
@@ -118,18 +118,23 @@ def get_items_in_category(
     log.info(f'Alphas to page counts: {request_alphas}.')
     log.info(f'Attempting to get {expected_total_count} items from category_id: {category_id}.')
 
-    succeeded_requests = []
-    failed_requests = []
     total_count = 0
     for letter, count in request_alphas.items():
         last_page_count = alphas[letter] % ITEMS_PER_PAGE
+        # fix the edge case where number of items on last page is equal to the max items per page (modulo result is 0)
+        if not last_page_count: last_page_count = ITEMS_PER_PAGE
         items: List[Item] = []
         for page_num in range(1, count + 1):
             expected_count = (last_page_count, ITEMS_PER_PAGE)[page_num < count]
             params = ItemRequestParams(category_id, letter, page_num)
             page: List[Item] = get_items_with_letter_in_category_on_page(params)
 
-            item_page = ItemPage(category_id=category_id, alpha=letter, page_num=page_num, last_updated=datetime.utcnow())
+            item_page = ItemPage(
+                category_id=category_id,
+                alpha=letter,
+                page_num=page_num,
+                last_updated=datetime.utcnow()
+            )
 
             actual_count = len(page)
             if actual_count != expected_count:
@@ -138,7 +143,7 @@ def get_items_in_category(
                 item_page.succeeded = False
             else:
                 item_page.succeeded = True
-            db_item_page_id = save_item_page_block(item_page)
+            db_item_page_id = save_item_page_block(item_page, actual_count)
             if db_item_page_id is None:
                 log.error('Failed to create item page in db.')
 
@@ -156,7 +161,7 @@ def get_items_in_category(
             ]
             items += page
 
-        save_alpha_block(items)
+        save_items_block(items)
         total_count += len(items)
 
     if total_count != expected_total_count:
@@ -165,5 +170,3 @@ def get_items_in_category(
 
     category.item_count = total_count
     update_category_block(category)
-
-    return failed_requests

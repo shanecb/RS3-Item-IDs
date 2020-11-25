@@ -15,12 +15,6 @@ class ItemPage(Model):
     last_updated: datetime
     succeeded: bool = False
 
-    # @property
-    # def db_model(self):
-    #     return DBItemPage(
-    #         category=DBCategory.get(DBCategory.id == self.category_id),
-    #         alpha=self.alpha,
-    #         page_num=self.page_num,
-    #         last_update=self.last_updated,
-    #         succeeded=self.succeeded
-    #     )
+    @classmethod
+    def fetch_by(cls, category_id: int, alpha: str, page_num: int):
+        return cls.db.fetch_by(category_id, alpha, page_num)
