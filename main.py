@@ -1,16 +1,9 @@
-import json
-import requests
 from typing import List
 from models import *
-from db_manager import *
 from api_manager import *
 from utilities import log_manager
-from pprint import pprint
 
 log = log_manager.get_logger('RS3ItemIds.main')
-
-# get all categories in the database
-categories = list(Category.db.select())
 
 
 def save_items_block(items: List[Item]):
@@ -64,12 +57,9 @@ def update_category_block(category: Category):
 
 
 def main():
-    # category = Category(categories[0].id, categories[0].name, 0)
-
     for db_category in list(Category.db.select()):
         category = Category(db_category.id, db_category.name, db_category.item_count)
         get_items_in_category(category, save_items_block, save_item_page_block, update_category_block)
-
 
 
 main()

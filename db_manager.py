@@ -1,6 +1,3 @@
-import sqlite3
-from peewee import *
-from typing import List, Any
 from models import db, DBCategory, DBItemPage, DBItem
 from rs3_api_constants import item_categories
 from utilities import log_manager

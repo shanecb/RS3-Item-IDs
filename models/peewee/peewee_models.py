@@ -23,34 +23,8 @@ class DBBaseModel(Model):
         # legacy_table_names = False
         table_function = _make_table_name
 
-    @classmethod
-    def bulk_replace(cls, model_objects):
-        dict_list = [m._to_dict() for m in model_objects]
-        cls.replace_many(dict_list).execute()
-
     def to_dict(self):
         return model_to_dict(self)
-
-    # def _to_dict(self):
-    #     """Returns a dict of this model's keys to values with foreign keys replaced with references to their ids."""
-    #     fields = {}
-    #     for k, v in model_to_dict(self, recurse=False).items():
-    #         if isinstance(self._meta.fields[k], ForeignKeyField):
-    #             k = k + '_id'
-    #         fields[k] = v.id
-    #
-    #     return fields
-
-
-    # def _to_dict(self):
-    #     data = {}
-    #     fields = self.val._meta.fields
-    #     for name, v in model_to_dict(self.val, recurse=False).items():
-    #         if isinstance(fields[name], ForeignKeyField):
-    #             name = name + '_id'
-    #         data[name] = v
-    #
-    #     return data
 
 
 class DBCategory(DBBaseModel):
