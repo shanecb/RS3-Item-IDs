@@ -2,6 +2,7 @@ from peewee import *
 
 __all__ = [
     'DBCategory',
+    'DBItemPage',
     'DBItem',
     'db'
 ]
@@ -23,21 +24,29 @@ class DBBaseModel(Model):
 
 
 class DBCategory(DBBaseModel):
-    """Model of a RuneScape item category."""
+    """Model of a RuneScape item category_id."""
     id = IntegerField(primary_key=True)
     name = CharField()
     item_count = IntegerField(default=0)
-    last_update = DateTimeField(null=True)
+
+
+class DBItemPage(DBBaseModel):
+    """Model of a request for a page of items with given category_id id and alpha. Used to track last update times and
+    failed requests. """
+    id = AutoField()
+    category = ForeignKeyField(DBCategory, backref='page_requests')
+    alpha = CharField()
+    page_num = IntegerField()
+    last_updated = DateTimeField()
+    succeeded = BooleanField(default=False)
 
 
 class DBItem(DBBaseModel):
     """Model of a RuneScape item."""
     id = IntegerField(primary_key=True)
     category = ForeignKeyField(DBCategory, backref='items')
+    item_page = ForeignKeyField(DBItemPage, backref='items')
     name = CharField()
     description = CharField()
     type = CharField()
     members_only = BooleanField()
-
-
-

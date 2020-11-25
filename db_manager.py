@@ -1,14 +1,14 @@
 import sqlite3
 from peewee import *
 from typing import List, Any
-from models import db, DBCategory, DBItem
+from models import db, DBCategory, DBItemPage, DBItem
 from rs3_api_constants import item_categories
 from utilities import log_manager
 
 log = log_manager.get_logger('RS3ItemIds.api_manager')
 """Logger object specific to the APIManager."""
 
-MODELS = [DBCategory, DBItem]
+MODELS = [DBCategory, DBItemPage, DBItem]
 
 __all__ = [
     'create_tables',

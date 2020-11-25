@@ -1,7 +1,7 @@
 from typing import Dict
 
 
-#: Dict of category id's and their associated category names.
+#: Dict of category_id id's and their associated category_id names.
 item_categories: Dict = {
     0: 'Miscellaneous',
     1: 'Ammo',
