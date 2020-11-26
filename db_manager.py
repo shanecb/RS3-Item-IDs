@@ -2,8 +2,8 @@ from models import *
 from rs3_api_constants import item_categories
 from utilities import log_manager
 
-log = log_manager.get_logger('RS3ItemIds.api_manager')
-"""Logger object specific to the APIManager."""
+log = log_manager.get_logger('RS3ItemIds.db_manager')
+"""Logger object specific to db_manager."""
 
 MODELS = [Category, ItemPage, Item]
 
